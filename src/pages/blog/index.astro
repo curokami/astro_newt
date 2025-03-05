@@ -3,32 +3,24 @@ import Layout from "../../layouts/Layout.astro";
 import { getArticles } from "../../lib/newt";
 import Search from "../../components/Search.tsx";
 
-// ✅ `_id`, `title`, `body` のみを JSON に含める
+// ✅ `_id`, `slug`, `title`, `body` のみを JSON に含める
 const articles = await getArticles();
 const articlesJson = JSON.stringify(
-  articles.map(({ _id, title, body }) => ({
-    _id: _id?.toString() || "",  // 🔹 _id を文字列に変換し、null の場合は空文字にする
-    title,
-    body
-  }))
+  articles.map(({ _id, slug, title, body }) => ({ _id, slug, title, body })) // ✅ `_id` と `slug` を追加
 ).replace(/</g, "\\u003c") // ✅ HTML エスケープ
  .replace(/>/g, "\\u003e")
- .replace(/&/g, "\\u0026");
+ .replace(/&/g, "\\u0026")
+ .replace(/\n/g, "\\n"); // ✅ 改行をエスケープ
 
 console.log("🔍 index.astro で埋め込む JSON:", articlesJson);
+console.log("📌 記事データの型チェック:", articles.map(a => ({ _id: typeof a._id, title: a.title })));
 ---
 
 <Layout title="ブログ一覧" description="最新のブログ記事一覧">
   <h1 class="title">ブログ検索</h1>
 
   <!-- ✅ JSON を script タグとして適切に埋め込む -->
-  <script id="articles-data" type="application/json">
-    {JSON.stringify(articles.map(({ _id, title, body }) => ({
-      _id: _id?.toString() || "",  // ✅ `_id` を明示的に文字列に変換
-      title,
-      body
-    })))}
-  </script>
+  <script id="articles-data" type="application/json" set:html={articlesJson}></script>
 
   <Search client:load />
 </Layout>

@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import Fuse from "fuse.js";
+import { z } from "zod";
 
-// 🔹 記事データの型を定義
-interface Article {
-  _id: string;
-  title: string;
-  body: string;
-}
+// ✅ 記事データの型を Zod で定義
+const ArticleSchema = z.object({
+  _id: z.string().min(1, "ID が空です"),  // `_id` は必須
+  slug: z.string().min(1, "スラッグが空です"), // ✅ `slug` を追加
+  title: z.string().min(1, "タイトルが空です"),
+  body: z.string().min(1, "本文が空です"),
+});
+
+// ✅ 記事データの配列のスキーマ
+const ArticlesSchema = z.array(ArticleSchema);
+
+// ✅ TypeScript の型定義
+interface Article extends z.infer<typeof ArticleSchema> {} // ✅ `slug` を含めた型
 
 export default function Search() {
   const [query, setQuery] = useState("");
@@ -15,24 +23,23 @@ export default function Search() {
 
   useEffect(() => {
     const dataElement = document.getElementById("articles-data");
-
     if (!dataElement) {
       console.warn("⚠️ `articles-data` が見つかりませんでした。");
       return;
     }
-
+  
     const jsonData = dataElement.textContent?.trim();
     console.log("🔍 `articles-data` の中身:", jsonData);
-
+  
     if (!jsonData) {
       console.error("⚠️ `articles-data` の JSON が空です！");
       return;
     }
-
+  
     try {
-      console.log("✅ JSON パース前:", jsonData);
-      const parsedData: Article[] = JSON.parse(jsonData);
+      const parsedData = JSON.parse(jsonData);
       console.log("✅ JSON パース成功:", parsedData);
+  
       setArticles(parsedData);
       setResults(parsedData);
     } catch (error) {
@@ -40,12 +47,8 @@ export default function Search() {
     }
   }, []);
 
-  // 🔹 Fuse.js 設定
-  const fuse = new Fuse(articles, { 
-    keys: [
-      { name: "title", weight: 2 }, 
-      { name: "body", weight: 1 }
-    ], 
+  const fuse = new Fuse(articles, {
+    keys: [{ name: "title", weight: 2 }, { name: "body", weight: 1 }],
     threshold: 0.3,
     minMatchCharLength: 2,
     ignoreLocation: true,
@@ -58,13 +61,10 @@ export default function Search() {
 
     if (!searchQuery.trim()) {
       setResults(articles);
-      console.log("🔍 検索結果: 全件表示 (検索ワードなし)");
       return;
     }
 
     const searchResults = fuse.search(searchQuery).map(res => res.item);
-    console.log("🔍 検索結果:", searchResults.length > 0 ? searchResults : "⚠️ ヒットなし");
-
     setResults(searchResults);
   };
 
@@ -86,16 +86,16 @@ export default function Search() {
       <ul>
         {results.length > 0 ? (
           results.map((post) => (
-            <li key={post._id}>
-              <a href={`/blog/${post._id}`} target="_blank" rel="noopener noreferrer">
-                {post.title}
-              </a>
-            </li>
-          ))
-        ) : (
-          <p>⚠️ 検索結果が見つかりません。</p>
-        )}
-      </ul>
+          <li key={post._id}> {/* ✅ `_id` をキーに設定 */}
+          <a href={`/blog/${post.slug || post._id}`} target="_blank" rel="noopener noreferrer">
+          {post.title}
+        </a>
+      </li>
+    ))
+  ) : (
+    <p>⚠️ 検索結果が見つかりません。</p>
+  )}
+</ul>
     </div>
   );
 }
