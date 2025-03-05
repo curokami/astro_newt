@@ -1,0 +1,36 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getArticlesByTag, getTags } from "../../lib/newt.ts";
+
+// ✅ 追加: getStaticPaths を定義して、すべてのタグのパスを事前に生成
+export async function getStaticPaths() {
+  const tags = await getTags();
+  return tags.map(tag => ({
+    params: { slug: tag.slug },
+    props: { tag },
+  }));
+}
+
+const { slug } = Astro.params;
+console.log("🚀 取得したタグ:", slug); // ✅ デバッグ用
+
+const { tag, articles } = await getArticlesByTag(slug);
+---
+
+<Layout title={tag?.name || "タグ"} description={`「${tag?.name || "タグ"}」に関連する記事一覧`}>
+  <h1 class="title">「{tag?.name || "タグ"}」の投稿</h1>
+  <ul class="articles">
+    {articles.length > 0 ? (
+      articles.map(article => (
+        <li class="card">
+          <a href={`/blog/${article.slug}/`}>
+            <img src={article.coverImage?.src} alt={article.title} class="card-img" />
+            <div class="card-title">{article.title}</div>
+          </a>
+        </li>
+      ))
+    ) : (
+      <p>記事がありません</p>
+    )}
+  </ul>
+</Layout>

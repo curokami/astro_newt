@@ -1,0 +1,75 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getTags } from "../lib/newt.ts";
+
+const tags = await getTags();
+console.log("🚀 取得したタグ一覧:", tags);
+---
+
+<Layout title="Tags" description="All the tags used in posts">
+  <div class="tags-container">
+    <h1>Tags</h1>
+    <p>All the tags used in posts.</p>
+
+    {tags.length > 0 ? (
+      <div class="tags-list">
+        {tags.map(tag => (
+          <a href={`/tags/${tag.slug}`} class="tag-item">#{tag.name}</a>
+        ))}
+      </div>
+    ) : (
+      <p class="no-tags">タグがありません</p>
+    )}
+  </div>
+</Layout>
+
+<style>
+
+
+  /* ✅ タグのスタイル */
+  .tags-container {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	text-align: center;
+  }
+  
+  .tags-list {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	gap: 10px;
+	margin-top: 20px;
+  }
+  
+  .tag-item {
+	display: inline-block;
+	padding: 8px 14px;
+	font-size: 1rem;
+	font-weight: bold;
+	color: #333;
+	background: #f3f3f3;
+	border-radius: 5px;
+	text-decoration: none;
+	transition: all 0.3s ease-in-out;
+  }
+  
+  .tag-item:hover {
+	background: #ddd;
+	color: black;
+  }
+  
+  /* ✅ レスポンシブ対応 */
+  @media (max-width: 768px) {
+	.hamburger {
+	  display: block;
+	}
+  
+	.nav-menu {
+	  display: none;
+	  flex-direction: column;
+	  width: 100%;
+	  text-align: center;
+	}
+  
+</style>

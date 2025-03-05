@@ -1,0 +1,126 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+export interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="stylesheet" href="/styles/global.css">
+  
+  <!-- ✅ RSS フィードのリンクを追加 -->
+  <link rel="alternate" type="application/rss+xml" title="RSSフィード" href="/rss.xml">
+</head>
+
+
+<body>
+  <Header /> <!-- ✅ ここでHeader.astroを読み込む -->
+  <main class="container">
+  <slot />
+</main>
+ <Footer />
+</body>
+</html>
+
+<style>
+
+  .header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* ✅ サイトタイトル */
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+  }
+
+  /* ✅ ナビゲーションメニュー */
+  .nav-menu {
+    display: flex;
+    gap: 20px;
+  }
+
+  .nav-menu a, .nav-menu button {
+    text-decoration: none;
+    color: black;
+    font-size: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+
+  /* ✅ RSS リンクのスタイル */
+  .rss-link img {
+    vertical-align: middle;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .rss-link img:hover {
+    opacity: 0.7;
+  }
+
+  /* ✅ ハンバーガーメニュー（モバイル用） */
+  .hamburger {
+    display: none;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ✅ レスポンシブ対応 */
+  @media (max-width: 768px) {
+    .nav-menu {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: white;
+      padding: 10px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-menu.active {
+      display: flex;
+    }
+
+    .hamburger {
+      display: block;
+    }
+  }
+
+  .rss-link img {
+  vertical-align: middle;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.rss-link img:hover {
+  opacity: 0.7;
+}
+
+/* アイコンのデフォルトスタイル */
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+</style>
