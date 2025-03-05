@@ -18,7 +18,8 @@
     "astro": "^5.3.0",
     "esbuild": "0.25.0",
     "fuse.js": "^7.1.0",
-    "newt-client-js": "^3.3.8"
+    "newt-client-js": "^3.3.8",
+    "zod": "^3.24.2"
   },
   "overrides": {
     "esbuild": "0.25.0"
